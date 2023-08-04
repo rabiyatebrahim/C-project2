@@ -1,0 +1,745 @@
+
+#include<iostream>
+#include<string>
+#include <fstream>
+#include <vector>
+#include <sstream>
+#include <ios>
+using namespace std;
+
+struct Patient {
+    string name;
+    int age;
+    string gender;
+    string disease;
+    int id;
+    string contact_information;
+    string medical_history;
+    string prescriptions;
+};
+struct ListOfServices {
+    float consultation;
+    float laboratory;
+    float medication;
+    float total;
+};
+struct Date {
+    int day;
+    int month;
+    int year;
+};
+struct Invoice {
+    Patient patient;
+    ListOfServices services;
+    Date date;
+};
+struct Appointment {
+    Patient app_patient;
+    Date app_date;
+    string time;
+};
+struct InventoryItem {
+    std::string name;
+    int quantity;
+    int reorder_level;
+    std::string supplier;
+    std::string purchase_history;
+};
+
+std::vector<InventoryItem> info;
+
+const int MAX_PATIENTS = 100;
+Patient patientList[MAX_PATIENTS];
+int patientCount = 0; //number of patients currently stored
+const int MAX_APPOINTMENTS = 100; // Maximum number of appointments
+Appointment newAppointment;
+Appointment appointments[MAX_APPOINTMENTS];
+int numAppointments = 0;
+// Function prototypes
+float CalculateTotal(const ListOfServices& services);
+void GetInputs(Patient& patient, Date& date, ListOfServices& services);
+void DisplayBill(const Invoice& invoice);
+void StoreBill(const Invoice& invoice, Invoice& records);
+
+// Calculates the total cost of the services
+float CalculateTotal(const ListOfServices& services) {
+    return services.consultation + services.laboratory + services.medication;
+}
+
+// Gets input from the user for the patient, date, and services
+void GetInputs(Patient& patient, Date& date, ListOfServices& services) {
+    cin.ignore();
+    cout << "Enter patient name: ";
+    getline(cin, patient.name);
+
+    cout << "Enter patient ID: ";
+    cin >> patient.id;
+
+    cout << "Enter the date (dd mm yyyy): ";
+    cin >> date.day >> date.month >> date.year;
+
+    cout << "What is the cost for consultation? Enter 0 if there is none: ";
+    cin >> services.consultation;
+
+    cout << "What is the cost for laboratory? Enter 0 if there is none: ";
+    cin >> services.laboratory;
+
+    cout << "What is the cost for medication? Enter 0 if there is none: ";
+    cin >> services.medication;
+
+    cin.ignore(); // clear the input buffer
+}
+
+// Displays the bill to the user
+void DisplayBill(const Invoice& invoice) {
+    cout << "Patient name: " << invoice.patient.name << endl;
+    cout << "Patient ID: " << invoice.patient.id << endl;
+    cout << "Date: " << invoice.date.day << "/" << invoice.date.month << "/" << invoice.date.year << endl;
+    cout << "Consultation: " << invoice.services.consultation << endl;
+    cout << "Laboratory: " << invoice.services.laboratory << endl;
+    cout << "Medication: " << invoice.services.medication << endl;
+    cout << "Total charge: " << invoice.services.total << endl;
+}
+
+// Stores the bill in a record
+void StoreBill(const Invoice& invoice, Invoice& records) {
+    // Copy data from invoice to records
+    records.patient = invoice.patient;
+    records.services = invoice.services;
+    records.date = invoice.date;
+}
+// Writes an invoice to a file with append mode
+void WriteInvoiceToFile(const Invoice& invoice, const string& filePath) {
+    ofstream outFile(filePath, ios::app);
+
+    if (outFile.is_open()) {
+        outFile << "Patient name: " << invoice.patient.name << endl;
+        outFile << "Patient ID: " << invoice.patient.id << endl;
+        outFile << "Date: " << invoice.date.day << "/" << invoice.date.month << "/" << invoice.date.year << endl;
+        outFile << "Consultation: " << invoice.services.consultation << endl;
+        outFile << "Laboratory: " << invoice.services.laboratory << endl;
+        outFile << "Medication: " << invoice.services.medication << endl;
+        outFile << "Total charge: " << invoice.services.total << endl;
+
+        outFile.close();
+        cout << "Invoice saved to file.\n";
+    } else {
+        cout << "Unable to open file for writing.\n";
+    }
+}
+// Function definition for reading an invoice from a file
+void ReadInvoiceFromFile(Invoice& invoice, const string& filePath) {
+    ifstream inFile(filePath);
+
+    if (inFile.is_open()) {
+        getline(inFile, invoice.patient.name);
+        inFile >> invoice.patient.id;
+        inFile >> invoice.date.day >> invoice.date.month >> invoice.date.year;
+        inFile >> invoice.services.consultation;
+        inFile >> invoice.services.laboratory;
+        inFile >> invoice.services.medication;
+        inFile >> invoice.services.total;
+        inFile.close();
+        cout << "Invoice read from file.\n";
+    } else {
+        cout << "Unable to open file for reading.\n";
+    }
+}
+
+
+void addPatient() {
+    if (patientCount >= MAX_PATIENTS) {
+        cout << "Maximum number of patients reached." << endl;
+        return;
+    }
+
+    Patient newPatient;
+    cout << "Enter patient name: ";
+    getline(cin, newPatient.name);
+    cout << "Enter patient age: ";
+    cin >> newPatient.age;
+    cin.ignore();
+
+    cout << "Enter patient gender: ";
+    getline(cin, newPatient.gender);
+
+    cout << "Enter patient disease: ";
+    getline(cin, newPatient.disease);
+
+    cout << "Enter patient ID: ";
+    cin >> newPatient.id;
+    cin.ignore();
+
+    cout << "Enter patient contact information: ";
+    getline(cin, newPatient.contact_information);
+
+    cout << "Enter patient medical history: ";
+    getline(cin, newPatient.medical_history);
+
+    cout << "Enter patient prescriptions: ";
+    getline(cin, newPatient.prescriptions);
+
+    patientList[patientCount] = newPatient;
+    patientCount++;
+
+    cout << "Patient added successfully." << endl;
+}
+
+void showPatientRecords() {
+	if(patientCount==0){
+		cout<<"No patient records found."<<endl;
+		return;
+	}
+    for (int i = 0; i < patientCount; i++) {
+        cout << "Patient " << i+1 << ":" << endl;
+        cout << "Name: " << patientList[i].name << endl;
+        cout << "Age: " << patientList[i].age << endl;
+        cout << "Gender: " << patientList[i].gender << endl;
+        cout << "Disease: " << patientList[i].disease << endl;
+        cout << "ID: " << patientList[i].id << endl;
+        cout << "Contact Information: " << patientList[i].contact_information << endl;
+        cout << "Medical History: " << patientList[i].medical_history << endl;
+        cout << "Prescriptions: " << patientList[i].prescriptions << endl;
+        cout << endl;
+    }
+}
+
+void searchPatient() {
+	if(patientCount==0){
+		cout<<"No patient records found."<<endl;
+		return;
+	}
+    int searchId;
+    cout << "Enter patient ID to search: ";
+    cin >> searchId;
+    bool found;
+    for (int i = 0; i < patientCount; i++) {
+        if (patientList[i].id == searchId) {
+
+            cout << "Patient found:" << endl;
+            cout << "Name: " << patientList[i].name << endl;
+            cout << "Age: " << patientList[i].age <<endl;
+            cout << "Gender: " << patientList[i].gender << endl;
+            cout << "Disease: " << patientList[i].disease << endl;
+            cout << "ID: " << patientList[i].id << endl;
+            cout << "Contact Information: " << patientList[i].contact_information << endl;
+            cout << "Medical History: " << patientList[i].medical_history << endl;
+            cout << "Prescriptions: " << patientList[i].prescriptions << endl;
+            return;
+        }
+    }
+
+    cout << "Patient not found." << endl;
+}
+
+void updatePatientInfo() {
+    int searchId;
+    cout << "Enter patient ID to update: ";
+    cin >> searchId;
+    cin.ignore();
+    for (int i = 0; i < patientCount; i++) {
+        if (patientList[i].id == searchId) {
+            cout << "Enter updated patient name: ";
+            getline(cin, patientList[i].name);
+
+            cout << "Enter updated patient age: ";
+            cin >> patientList[i].age;
+            cin.ignore();
+
+            cout << "Enter updated patient gender: ";
+            getline(cin, patientList[i].gender);
+
+            cout << "Enter updated patient disease: ";
+            getline(cin, patientList[i].disease);
+
+            cout << "Enter updated patient contact information: ";
+            getline(cin, patientList[i].contact_information);
+
+            cout << "Enter updated patient medical history: ";
+            getline(cin, patientList[i].medical_history);
+
+            cout << "Enter updated patient prescriptions: ";
+            getline(cin, patientList[i].prescriptions);
+
+            cout << "Patient information updated successfully." << endl;
+            return;
+        }
+    }
+
+    cout << "Patient not found." << endl;
+}
+
+void storePatientInformation() {
+    // Code to store patient information to a file or database can be added here
+    cout << "Patient information stored successfully." << endl;
+}
+void menu(){
+	    cout << "********PATIENT MANAGEMENT SYSTEM********" << endl;
+        cout << "1. Add Patient" << endl;
+        cout << "2. Show Patient Records" << endl;
+        cout << "3. Search Patient" << endl;
+        cout << "4. Update Patient Info" << endl;
+        cout << "5. Store Patient Information" << endl;
+        cout << "6. Quit" << endl;
+        cout << "     *****************************     "<<endl;
+}
+//book appointment
+void BookAppointments(Appointment appointments[], int&numAppointments){
+	if (numAppointments >= MAX_APPOINTMENTS){
+		cout << "No more appointment can be booked. The appointment list is full.\n";
+	}
+
+	cout << "Enter patient name: ";
+	cin.ignore();
+	getline(cin, newAppointment.app_patient.name);
+
+
+	cout << "Enter patient id: ";
+	cin >> newAppointment.app_patient.id;
+
+	cout << "Enter date of appointment(dd/mm/yyyy): ";
+	cin >> newAppointment.app_date.day >> newAppointment.app_date.month >> newAppointment.app_date.year;
+
+	cin.ignore();
+
+	cout << "Enter appointment time: ";
+	getline(cin, newAppointment.time);
+
+	appointments[numAppointments]= newAppointment;
+	numAppointments++;
+}
+//search and display booked appointments functions
+void checkAppointments(Appointment appointments[], int numAppointments, int patientid){
+	bool found = false;
+	for(int i = 0; i < numAppointments; i++){
+		if(appointments[i].app_patient.id == patientid){
+			cout << "Appointment found\n";
+			cout << "Patient name: "<< appointments[i].app_patient.name << endl;
+			cout << "Patient id: " << appointments[i].app_patient.id << endl;
+			cout << "Appointment date: "<< appointments[i].app_date.day << "/" << appointments[i].app_date.month << "/" << appointments[i].app_date.year << endl;
+			cout << "Appointment time: " << appointments[i].time << endl;
+			found = true;
+			break;
+		}
+
+	}
+	if(!found){
+		cout << "No appointment found for ID " << patientid << endl;}
+
+}
+
+//upgrade existing appointments
+void updateAppointment(Appointment appointments[], int numAppointments, int patientid){
+	cout << "Enter patient id: ";
+	cin >> patientid;
+	bool foundAppointment = false;
+	for(int i = 0; i < numAppointments; i++){
+		if(appointments[i].app_patient.id == patientid){
+			cout << "Appointment found.\n";
+
+			cout << "Enter updated appointment date: ";
+			cin >> appointments[i].app_date.day >> appointments[i].app_date.month >> appointments[i].app_date.year;
+
+			cin.ignore();
+
+			cout << "Enter updated appointment time: ";
+			getline(cin, appointments[i].time);
+
+		foundAppointment = true;
+		break;
+}
+}
+if(!foundAppointment){
+	cout << "No appointment on that date.\n";
+}
+}
+//cancel apppointments
+void cancelAppointment(Appointment appointments[], int numAppointments, int patientid){
+	int cancelIndex;
+	bool cancelAppointment = false;
+	//find the index
+	for(int i = 0; i < numAppointments; i++){
+	if(appointments[i].app_patient.id == patientid){
+		i = cancelIndex;
+	cancelAppointment = true;
+	break;
+	}
+}
+	//shift
+	if(cancelAppointment){
+	for(int i = cancelIndex; i < numAppointments; i++){
+		appointments[i] = appointments[i + 1];
+	}
+	numAppointments--;
+	cout <<"Appointment successfully cancelled.";}
+	else{
+		cout << "No appointment found";
+	}
+}
+void Create() {
+    InventoryItem newItem;
+    std::cout << "Enter item name: ";
+    std::cin >> newItem.name;
+    std::cout << "Enter item quantity: ";
+    std::cin >> newItem.quantity;
+    std::cout << "Enter reorder level: ";
+    std::cin >> newItem.reorder_level;
+    std::cout << "Enter supplier: ";
+    std::cin >> newItem.supplier;
+    std::cout << "Enter purchase history: ";
+    std::cin >> newItem.purchase_history;
+
+    info.push_back(newItem);
+}
+int i=0;
+
+
+void View() {
+    if (info.empty()) {
+        std::cout << "Inventory is empty." << std::endl;
+    } else {
+        std::cout << std::endl<<"Current Inventory:" << std::endl<<std::endl;
+        for (std::vector<InventoryItem>::const_iterator it = info.begin(); it != info.end(); ++it , ++i ) {
+    const InventoryItem& item = *it;
+            std::cout << i << ".NAME: " << item.name <<std::endl<<" QUANTITY: " << item.quantity
+                      <<std::endl<< " REORDER LEVEL: " << item.reorder_level
+                      <<std::endl<< " SUPPLIER: " << item.supplier <<std::endl<< " PURCHASE HISTORY: " << item.purchase_history << std::endl<<std::endl;
+        }
+    }
+}
+
+void Update() {
+    if (info.empty()) {
+        std::cout << "Inventory is empty." << std::endl;
+    } else {
+        int itemNo;
+        std::cout << "Enter the item number to update (0-" << info.size() - 1 << "): ";
+        std::cin >> itemNo;
+        if (itemNo >= 0 && itemNo < info.size()) {
+            InventoryItem& itemToUpdate = info[itemNo];
+            std::cout << "Enter updated item quantity: ";
+            std::cin >> itemToUpdate.quantity;
+            std::cout << "Enter updated reorder level: ";
+            std::cin >> itemToUpdate.reorder_level;
+            std::cout << "Enter updated supplier: ";
+            std::cin >> itemToUpdate.supplier;
+            std::cout << "Enter updated purchase history: ";
+            std::cin >> itemToUpdate.purchase_history;
+            std::cout << "Item information updated successfully." << std::endl;
+        } else {
+            std::cout << "Invalid item number." << std::endl;
+        }
+    }
+}
+
+void Delete() {
+    if (info.empty()) {
+        std::cout << "Inventory is empty." << std::endl;
+    } else {
+        int itemNo;
+        std::cout << "Enter the item number to delete (0-" << info.size() - 1 << "): ";
+        std::cin >> itemNo;
+        if (itemNo >= 0 && itemNo < info.size()) {
+            info.erase(info.begin() + itemNo);
+            std::cout << "Item deleted successfully." << std::endl;
+        } else {
+            std::cout << "Invalid item number." << std::endl;
+        }
+    }
+}
+
+void FindItemByName(const std::string& itemName) {
+    for (std::vector<InventoryItem>::const_iterator it = info.begin(); it != info.end(); ++it , ++i) {
+    const InventoryItem& item = *it;
+        if (item.name == itemName) {
+            std::cout <<std::endl<< "Item Found:" << std::endl;
+            std::cout << i << ".NAME: " << item.name <<std::endl<<" QUANTITY: " << item.quantity
+                      <<std::endl<< " REORDER LEVEL: " << item.reorder_level
+                      <<std::endl<< " SUPPLIER: " << item.supplier <<std::endl<< " PURCHASE HISTORY: " << item.purchase_history << std::endl<<std::endl;
+            return;
+        }
+    }
+    std::cout << "Item not found in the inventory." << std::endl;
+}
+void InventoryLevelTracker() {
+    std::cout << "Alert: Items below reorder level:" << std::endl;
+    for (std::vector<InventoryItem>::const_iterator it = info.begin(); it != info.end(); ++it ) {
+    const InventoryItem& item = *it;
+        if (item.quantity < item.reorder_level) {
+            std::cout <<std::endl
+            <<"Item Name: " << item.name << ",   Current Quantity: " << item.quantity
+                      << ",   Reorder Level: " << item.reorder_level << std::endl;
+        }
+    }
+}
+
+void saveInventoryToFile() {
+    std::ofstream outFile("inventory_data1.txt");
+    if (outFile.is_open()) {
+        for (std::vector<InventoryItem>::const_iterator it = info.begin(); it != info.end(); ++it) {
+    const InventoryItem& item = *it;
+            outFile << item.name << "," << item.quantity << "," << item.reorder_level << ","
+                    << item.supplier << "," << item.purchase_history << std::endl;
+        }
+        outFile.close();
+    }
+}
+
+void loadInventoryFromFile() {
+    std::ifstream inFile("inventory_data1.txt");
+    if (inFile.is_open()) {
+        info.clear();
+        InventoryItem item;
+        std::string line;
+        while (getline(inFile, line)) {
+
+            std::istringstream iss(line);
+
+
+            std::getline(iss, item.name, ',');
+
+
+            std::string quantityStr;
+            std::getline(iss, quantityStr, ',');
+            std::istringstream(quantityStr) >> item.quantity;
+            std::string reorderLevelStr;
+            std::getline(iss, reorderLevelStr, ',');
+            std::istringstream(reorderLevelStr) >> item.reorder_level;
+            std::getline(iss, item.supplier, ',');
+            std::getline(iss, item.purchase_history);
+
+            info.push_back(item);
+        }
+        inFile.close();
+    } else {
+        std::cout << "Error: Cannot open the inventory file for reading." << std::endl;
+    }
+}
+
+
+
+
+void Search() {
+    std::string searchItemName;
+    std::cout << "Enter the item name to search: ";
+    std::cin.ignore(); // Clear any lingering newline characters from previous input
+    std::getline(std::cin, searchItemName);
+    FindItemByName(searchItemName);
+}
+
+int main() {
+
+while(true){
+        //Print menu options
+        cout<<"*****CLINIC MANAGEMENT*****"<<endl;
+        cout << "1. Patient Management"<<endl;
+        cout << "2. Appointment Scheduling" << endl;
+        cout << "3. Billing and Financial Management" << endl;
+        cout << "4. Inventory Management System" << endl;
+        cout << "5. Exit" << endl;
+        int choice;
+        cout<<"Enter your choice"<<endl;
+        cin >> choice;
+        switch(choice){
+case 1:
+   {
+    //patient management
+    do {
+       menu();
+        cout<<"Enter your choice: ";
+       cin >> choice;
+       cin.ignore();
+
+        switch(choice) {
+            case 1:
+                addPatient();
+                break;
+            case 2:
+                showPatientRecords();
+                break;
+            case 3:
+                searchPatient();
+                break;
+            case 4:
+                updatePatientInfo();
+                break;
+            case 5:
+                storePatientInformation();
+                break;
+            case 6:
+                cout << "Exiting program..." << endl;
+                break;
+            default:
+                cout << "Invalid choice. Please try again." << endl;
+                break;
+        }
+
+        cout << endl;
+    } while(choice != 6);
+   }
+    break;
+            case 2:
+            {
+			//Appointment scheduling
+                int booking, patientid, bookingid, checkingid, updatingid, cancelingid;
+choice:	cout << "*********Appointment Booking***********\n";
+	cout << "1. Book an appointment\n";
+	cout << "2. Check existing appointment\n";
+	cout << "3. Update existing appointment\n";
+	cout << "4. Cancel an appointment\n";
+	cout << "5. Exit\n";
+	cout << "Choose booking service you want: ";
+	cin >> booking;
+	switch(booking){
+		case 1:
+		BookAppointments(appointments, numAppointments);
+		goto choice;
+		break;
+		case 2:
+			cout << "Enter patient id: ";
+			cin >> checkingid;
+			checkAppointments(appointments, numAppointments, checkingid);
+			goto choice;
+			break;
+
+		case 3:
+		cout << "Enter patient id: ";
+		cin >> updatingid;
+		updateAppointment(appointments, numAppointments, updatingid);
+		goto choice;
+		break;
+		case 4:
+			cout << "Enter patient id: ";
+			cin >> cancelingid;
+			cancelAppointment(appointments, numAppointments, cancelingid);
+			goto choice;
+			break;
+		case 5:
+			cout << "Existed Successfully";
+			break;
+		Default:
+			cout << "Invalid choice. Please try again." << endl;
+
+	}
+
+	ofstream outfile("appoint.txt");
+if(outfile.is_open()){
+	for(int i = 0; i < numAppointments; i++){
+	outfile << appointments[i].app_patient.name << endl;
+	outfile << appointments[i].app_patient.id << endl;
+	outfile << appointments[i].app_date.day << " /";
+	outfile << appointments[i].app_date.month << "/";
+	outfile << appointments[i].app_date.year<< endl;
+	outfile << appointments[i].time << endl;
+	outfile.close();
+	cout << "File saved successfully\n";
+}
+}
+else {
+	cout << "File not saved.\n";
+}
+
+ofstream updatefile("appoint.txt");
+        if (updatefile.is_open()) {
+            for (int i = 0; i < numAppointments; i++) {
+                updatefile << appointments[i].app_patient.name << endl;
+                updatefile << appointments[i].app_patient.id << endl;
+                updatefile << appointments[i].app_date.day << " /";
+                updatefile << appointments[i].app_date.month << "/";
+                updatefile << appointments[i].app_date.year << endl;
+                updatefile << appointments[i].time << endl;
+            }
+            updatefile.close();
+           // cout << "File updated successfully" << endl;
+        } else {
+            cout << "File not updated." << endl;
+        }
+            }
+        break;
+        case 3:
+{do {
+            //Billing and Financial Management
+             Invoice invoice;
+    Invoice records;
+    string filePath;
+ cout << "Enter the file path: ";
+
+    // Display a list of services for the user to choose from
+    cout << "********LIST OF SERVICES********" << endl;
+    cout << "1. Consultation\n2. Laboratory\n3. Medication" << endl;
+    cout << "********************************\n";
+
+    // Get input from the user and calculate the total cost of services
+    GetInputs(invoice.patient, invoice.date, invoice.services);
+    invoice.services.total = CalculateTotal(invoice.services);
+
+    // Display the bill to the user and store it in a record
+    cout << "*******SERVICE BILLING**********\n";
+     WriteInvoiceToFile(invoice, filePath);
+    ReadInvoiceFromFile(invoice, filePath);
+    cout<<"For the billing and financial management: 1. CONTINUE\n"<<"2. EXIT\n";
+     cin>>choice;
+     if (choice != 1 && choice != 2)
+            cout << "Error, try again" << endl;
+    } while (choice != 2);
+        }
+break;
+case 4: {
+loadInventoryFromFile();
+
+A: std::cout << std::endl << "Enter the number to choose from the options."<<std::endl<<"Enter 0 for other options." << std::endl;
+    std::cout << "1. CREATE INVENTORY ITEM" << std::endl << "2. VIEW INVENTORY" << std::endl << "3. UPDATE INVENTORY" << std::endl
+              << "4. DELETE INVENTORY ITEM" << std::endl << "5. SEARCH INVENTORY ITEM" <<std::endl<< "6. INVENTORY LEVEL TRACKER"<<std::endl<<std::endl;
+
+    int se;
+    std::cin >> se;
+    if (se == 1) {
+        Create();
+
+        std::cout << std::endl;
+    } else if (se == 2) {
+        i=0;
+        View();
+        std::cout << std::endl;
+    } else if (se == 3) {
+        Update();
+
+        std::cout << std::endl;
+    } else if (se == 4) {
+        Delete();
+
+        std::cout << std::endl;
+    } else if (se == 5) {
+        i=0;
+        Search();
+        std::cout << std::endl;
+    } else if (se == 0) {
+        goto B;
+    } else if (se == 6) {
+        InventoryLevelTracker();
+        std::cout << std::endl;
+    } else {
+        std::cout << "Error, try again" << std::endl;
+        goto A;
+    }
+saveInventoryToFile();
+B: std::cout << std::endl << "1. CONTINUE" << std::endl << "2. EXIT" << std::endl<<std::endl;
+    int choice;
+    std::cin >> choice;
+    if (choice == 1) {
+        goto A;
+    } else if (choice == 2) {
+        goto C;
+    } else {
+        std::cout << "Error, try again." << std::endl;
+        goto B;
+    }
+
+C: break;
+}
+case 5: goto End;
+        }
+}
+End: return 0;
+}
+
