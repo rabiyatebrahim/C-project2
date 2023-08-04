@@ -1,0 +1,195 @@
+
+#include<iostream>
+#include<string>
+
+using namespace std;
+
+struct Patient {
+    string name;
+    int age;
+    string gender;
+    string disease;
+    int id;
+    string contact_information;
+    string medical_history;
+    string prescriptions;
+};
+
+const int MAX_PATIENTS = 100;
+Patient patientList[MAX_PATIENTS];
+int patientCount = 0; //number of patients currently stored
+
+void addPatient() {
+    if (patientCount >= MAX_PATIENTS) {
+        cout << "Maximum number of patients reached." << endl;
+        return;
+    }
+    
+    Patient newPatient;
+    cout << "Enter patient name: ";
+    getline(cin, newPatient.name);
+    cout << "Enter patient age: ";
+    cin >> newPatient.age;
+    cin.ignore();
+    
+    cout << "Enter patient gender: ";
+    getline(cin, newPatient.gender);
+    
+    cout << "Enter patient disease: ";
+    getline(cin, newPatient.disease);
+    
+    cout << "Enter patient ID: ";
+    cin >> newPatient.id;
+    cin.ignore();
+    
+    cout << "Enter patient contact information: ";
+    getline(cin, newPatient.contact_information);
+    
+    cout << "Enter patient medical history: ";
+    getline(cin, newPatient.medical_history);
+    
+    cout << "Enter patient prescriptions: ";
+    getline(cin, newPatient.prescriptions);
+    
+    patientList[patientCount] = newPatient;
+    patientCount++;
+    
+    cout << "Patient added successfully." << endl;
+}
+
+void showPatientRecords() {
+	if(patientCount==0){
+		cout<<"No patient records found."<<endl;
+		return;
+	}
+    for (int i = 0; i < patientCount; i++) {
+        cout << "Patient " << i+1 << ":" << endl;
+        cout << "Name: " << patientList[i].name << endl;
+        cout << "Age: " << patientList[i].age << endl;
+        cout << "Gender: " << patientList[i].gender << endl;
+        cout << "Disease: " << patientList[i].disease << endl;
+        cout << "ID: " << patientList[i].id << endl;
+        cout << "Contact Information: " << patientList[i].contact_information << endl;
+        cout << "Medical History: " << patientList[i].medical_history << endl;
+        cout << "Prescriptions: " << patientList[i].prescriptions << endl;
+        cout << endl;
+    }
+}
+
+void searchPatient() {
+	if(patientCount==0){
+		cout<<"No patient records found."<<endl;
+		return;
+	}
+    int searchId;
+    cout << "Enter patient ID to search: ";
+    cin >> searchId;
+    bool found;
+    for (int i = 0; i < patientCount; i++) {
+        if (patientList[i].id == searchId) {
+    
+            cout << "Patient found:" << endl;
+            cout << "Name: " << patientList[i].name << endl;
+            cout << "Age: " << patientList[i].age <<endl;
+            cout << "Gender: " << patientList[i].gender << endl;
+            cout << "Disease: " << patientList[i].disease << endl;
+            cout << "ID: " << patientList[i].id << endl;
+            cout << "Contact Information: " << patientList[i].contact_information << endl;
+            cout << "Medical History: " << patientList[i].medical_history << endl;
+            cout << "Prescriptions: " << patientList[i].prescriptions << endl;
+            return;
+        }
+    }
+    
+    cout << "Patient not found." << endl;
+}
+
+void updatePatientInfo() {
+    int searchId;
+    cout << "Enter patient ID to update: ";
+    cin >> searchId;
+    cin.ignore();
+    for (int i = 0; i < patientCount; i++) {
+        if (patientList[i].id == searchId) {
+            cout << "Enter updated patient name: ";
+            getline(cin, patientList[i].name);
+            
+            cout << "Enter updated patient age: ";
+            cin >> patientList[i].age;
+            cin.ignore();
+            
+            cout << "Enter updated patient gender: ";
+            getline(cin, patientList[i].gender);
+            
+            cout << "Enter updated patient disease: ";
+            getline(cin, patientList[i].disease);
+            
+            cout << "Enter updated patient contact information: ";
+            getline(cin, patientList[i].contact_information);
+            
+            cout << "Enter updated patient medical history: ";
+            getline(cin, patientList[i].medical_history);
+            
+            cout << "Enter updated patient prescriptions: ";
+            getline(cin, patientList[i].prescriptions);
+            
+            cout << "Patient information updated successfully." << endl;
+            return;
+        }
+    }
+    
+    cout << "Patient not found." << endl;
+}
+
+void storePatientInformation() {
+    // Code to store patient information to a file or database can be added here
+    cout << "Patient information stored successfully." << endl;
+}
+void menu(){
+	    cout << "********PATIENT MANAGEMENT SYSTEM********" << endl;
+        cout << "1. Add Patient" << endl;
+        cout << "2. Show Patient Records" << endl;
+        cout << "3. Search Patient" << endl;
+        cout << "4. Update Patient Info" << endl;
+        cout << "5. Store Patient Information" << endl;
+        cout << "6. Quit" << endl;
+        cout << "     *****************************     "<<endl;
+}
+
+int main() {
+    int choice;
+    
+    do {
+       menu();
+        cout<<"Enter your choice: ";
+       cin >> choice;
+       cin.ignore();
+        
+        switch(choice) {
+            case 1:
+                addPatient();
+                break;
+            case 2:
+                showPatientRecords();
+                break;
+            case 3:
+                searchPatient();
+                break;
+            case 4:
+                updatePatientInfo();
+                break;
+            case 5:
+                storePatientInformation();
+                break;
+            case 6:
+                cout << "Exiting program..." << endl;
+                break;
+            default:
+                cout << "Invalid choice. Please try again." << endl;
+                break;
+        }
+        
+        cout << endl;
+    } while(choice != 6);
+    return 0;
+}
