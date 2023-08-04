@@ -48,6 +48,7 @@ float CalculateTotal(const ListOfServices& services) {
 
 // Gets input from the user for the patient, date, and services
 void GetInputs(Patient& patient, Date& date, ListOfServices& services) {
+    cin.ignore();
     cout << "Enter patient name: ";//click enter twice
     getline(cin, patient.name);
 
