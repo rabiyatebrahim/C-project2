@@ -1,0 +1,163 @@
+#include <iostream>
+#include <string>
+#include <fstream>
+#include <ios>
+using namespace std;
+
+// Define structs for the different components of the invoice
+struct Patient {
+    string name;
+    int age;
+    string gender;
+    string disease;
+    int id;
+    string contact_information;
+    string medical_history;
+    string prescriptions;
+};
+
+struct ListOfServices {
+    float consultation;
+    float laboratory;
+    float medication;
+    float total;
+};
+
+struct Date {
+    int day;
+    int month;
+    int year;
+};
+
+struct Invoice {
+    Patient patient;
+    ListOfServices services;
+    Date date;
+};
+
+// Function prototypes
+float CalculateTotal(const ListOfServices& services);
+void GetInputs(Patient& patient, Date& date, ListOfServices& services);
+void DisplayBill(const Invoice& invoice);
+void StoreBill(const Invoice& invoice, Invoice& records);
+
+// Calculates the total cost of the services
+float CalculateTotal(const ListOfServices& services) {
+    return services.consultation + services.laboratory + services.medication;
+}
+
+// Gets input from the user for the patient, date, and services
+void GetInputs(Patient& patient, Date& date, ListOfServices& services) {
+    cout << "Enter patient name: ";//click enter twice
+    getline(cin, patient.name);
+
+    cout << "Enter patient ID: ";
+    cin >> patient.id;
+ 
+    cout << "Enter the date (dd mm yyyy): ";
+    cin >> date.day >> date.month >> date.year;
+
+    cout << "What is the cost for consultation? Enter 0 if there is none: ";
+    cin >> services.consultation;
+
+    cout << "What is the cost for laboratory? Enter 0 if there is none: ";
+    cin >> services.laboratory;
+
+    cout << "What is the cost for medication? Enter 0 if there is none: ";
+    cin >> services.medication;
+
+    cin.ignore(); // clear the input buffer
+}
+
+// Displays the bill to the user
+void DisplayBill(const Invoice& invoice) {
+    cout << "Patient name: " << invoice.patient.name << endl;
+    cout << "Patient ID: " << invoice.patient.id << endl;
+    cout << "Date: " << invoice.date.day << "/" << invoice.date.month << "/" << invoice.date.year << endl;
+    cout << "Consultation: " << invoice.services.consultation << endl;
+    cout << "Laboratory: " << invoice.services.laboratory << endl;
+    cout << "Medication: " << invoice.services.medication << endl;
+    cout << "Total charge: " << invoice.services.total << endl;
+}
+
+// Stores the bill in a record
+void StoreBill(const Invoice& invoice, Invoice& records) {
+    // Copy data from invoice to records
+    records.patient = invoice.patient;
+    records.services = invoice.services;
+    records.date = invoice.date;
+}
+// Writes an invoice to a file
+// Writes an invoice to a file with append mode
+void WriteInvoiceToFile(const Invoice& invoice, const string& filePath) {
+    ofstream outFile(filePath, ios::app);
+
+    if (outFile.is_open()) {
+        outFile << "Patient name: " << invoice.patient.name << endl;
+        outFile << "Patient ID: " << invoice.patient.id << endl;
+        outFile << "Date: " << invoice.date.day << "/" << invoice.date.month << "/" << invoice.date.year << endl;
+        outFile << "Consultation: " << invoice.services.consultation << endl;
+        outFile << "Laboratory: " << invoice.services.laboratory << endl;
+        outFile << "Medication: " << invoice.services.medication << endl;
+        outFile << "Total charge: " << invoice.services.total << endl;
+
+        outFile.close();
+        cout << "Invoice saved to file.\n";
+    } else {
+        cout << "Unable to open file for writing.\n";
+    }
+}
+
+
+// Function definition for reading an invoice from a file
+void ReadInvoiceFromFile(Invoice& invoice, const string& filePath) {
+    ifstream inFile(filePath);
+
+    if (inFile.is_open()) {
+        getline(inFile, invoice.patient.name);
+        inFile >> invoice.patient.id;
+        inFile >> invoice.date.day >> invoice.date.month >> invoice.date.year;
+        inFile >> invoice.services.consultation;
+        inFile >> invoice.services.laboratory;
+        inFile >> invoice.services.medication;
+        inFile >> invoice.services.total;
+        inFile.close();
+        cout << "Invoice read from file.\n";
+    } else {
+        cout << "Unable to open file for reading.\n";
+    }
+}
+
+int main() {
+ int choice;
+ string filePath;
+ cout << "Enter the file path: ";
+    getline(cin, filePath);
+ do{
+ 
+    Invoice invoice;
+    Invoice records;
+
+    // Display a list of services for the user to choose from
+    cout << "**LIST OF SERVICES**" << endl;
+    cout << "1. Consultation\n2. Laboratory\n3. Medication" << endl;
+    cout << "********\n";
+
+    // Get input from the user and calculate the total cost of services
+    GetInputs(invoice.patient, invoice.date, invoice.services);
+    invoice.services.total = CalculateTotal(invoice.services);
+
+    // Display the bill to the user and store it in a record
+    cout << "*SERVICE BILLING****\n";
+    DisplayBill(invoice);
+    StoreBill(invoice, records);
+    WriteInvoiceToFile(invoice, filePath);
+    ReadInvoiceFromFile(invoice, filePath);
+cout<<"For the billing and financial management: 1. CONTINUE\n"<<"2. EXIT\n";
+     cin>>choice;
+     if (choice != 1 && choice != 2)
+            cout << "Error, try again" << endl;
+    } while (choice != 2);
+
+    return 0;
+}
