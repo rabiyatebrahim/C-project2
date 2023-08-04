@@ -1,0 +1,206 @@
+#include <iostream>
+#include <string>
+#include <fstream>
+
+using namespace std;
+
+struct Patient {
+    string name;
+    int age;
+    string gender;
+    string disease;
+    int id;
+    string contact_information;
+    string medical_history;
+    string prescriptions;
+};
+
+struct Date {
+    int day;
+    int month;
+    int year;
+};
+
+struct Appointment {
+    Patient app_patient;
+    Date app_date;
+    string time;
+};
+const int MAX_APPOINTMENTS = 100; // Maximum number of appointments
+Appointment newAppointment;
+Appointment appointments[MAX_APPOINTMENTS];
+int numAppointments = 0;
+
+
+//book appointment
+void BookAppointments(Appointment appointments[], int&numAppointments){
+	if (numAppointments >= MAX_APPOINTMENTS){
+		cout << "No more appointment can be booked. The appointment list is full.\n";
+	}
+
+	cout << "Enter patient name: ";
+	cin.ignore();
+	getline(cin, newAppointment.app_patient.name);
+	
+	
+	cout << "Enter patient id: ";
+	cin >> newAppointment.app_patient.id;
+	
+	cout << "Enter date of appointment(dd/mm/yyyy): ";
+	cin >> newAppointment.app_date.day >> newAppointment.app_date.month >> newAppointment.app_date.year;
+	
+	cin.ignore();
+	
+	cout << "Enter appointment time: ";
+	getline(cin, newAppointment.time);
+	
+	appointments[numAppointments]= newAppointment;
+	numAppointments++;
+}
+//search and display booked appointments functions
+void checkAppointments(Appointment appointments[], int numAppointments, int patientid){
+	bool found = false;
+	for(int i = 0; i < numAppointments; i++){
+		if(appointments[i].app_patient.id == patientid){
+			cout << "Appointment found\n";
+			cout << "Patient name: "<< appointments[i].app_patient.name << endl;
+			cout << "Patient id: " << appointments[i].app_patient.id << endl;
+			cout << "Appointment date: "<< appointments[i].app_date.day << "/" << appointments[i].app_date.month << "/" << appointments[i].app_date.year << endl;
+			cout << "Appointment time: " << appointments[i].time << endl;
+			found = true;
+			break;
+		}
+		
+	} 
+	if(!found){
+		cout << "No appointment found for ID " << patientid << endl;}
+	
+}
+
+//upgrade existing appointments
+void updateAppointment(Appointment appointments[], int numAppointments, int patientid){
+	cout << "Enter patient id: ";
+	cin >> patientid;
+	bool foundAppointment = false;
+	for(int i = 0; i < numAppointments; i++){
+		if(appointments[i].app_patient.id == patientid){
+			cout << "Appointment found.\n";
+			
+			cout << "Enter updated appointment date: ";
+			cin >> appointments[i].app_date.day >> appointments[i].app_date.month >> appointments[i].app_date.year;
+			
+			cin.ignore();
+			
+			cout << "Enter updated appointment time: ";
+			getline(cin, appointments[i].time);
+			
+		foundAppointment = true;
+		break;	
+}
+}
+if(!foundAppointment){
+	cout << "No appointment on that date.\n";
+}
+}
+//cancel apppointments
+void cancelAppointment(Appointment appointments[], int numAppointments, int patientid){
+	int cancelIndex;
+	bool cancelAppointment = false;
+	//find the index
+	for(int i = 0; i < numAppointments; i++){
+	if(appointments[i].app_patient.id == patientid){
+		i = cancelIndex;	
+	cancelAppointment = true;
+	break;	
+	}
+}
+	//shift
+	if(cancelAppointment){
+	for(int i = cancelIndex; i < numAppointments; i++){
+		appointments[i] = appointments[i + 1];
+	}
+	numAppointments--;
+	cout <<"Appointment successfully cancelled.";}
+	else{
+		cout << "No appointment found"<<endl;
+	}
+}
+//stores in file and books appointment
+int main(){
+	int booking, patientid, bookingid, checkingid, updatingid, cancelingid;
+Choice:	cout << "*********Appointment Booking***********\n";
+	cout << "1. Book an appointment\n";
+	cout << "2. Check existing appointment\n";
+	cout << "3. Update existing appointment\n";
+	cout << "4. Cancel an appointment\n";
+	cout << "5. Exit\n";
+	cout << "Choose booking service you want: ";
+	cin >> booking;
+	switch(booking){
+		case 1: 
+		BookAppointments(appointments, numAppointments);
+		goto Choice;
+		case 2:
+			cout << "Enter patient id: ";
+			cin >> checkingid;
+			checkAppointments(appointments, numAppointments, checkingid);
+			goto Choice;
+			
+		case 3: 
+		cout << "Enter patient id: ";
+		cin >> updatingid;
+		updateAppointment(appointments, numAppointments, updatingid);
+		goto Choice;
+		case 4:
+			cout << "Enter patient id: ";
+			cin >> cancelingid;
+			cancelAppointment(appointments, numAppointments, cancelingid);
+			goto Choice;
+		case 5:
+			cout << "Existed Successfully"<<endl;
+			break;
+		Default:
+			cout << "Invalid choice. Please try again." << endl;
+			
+	}
+	
+	ofstream outfile("appoint.txt");
+if(outfile.is_open()){
+	for(int i = 0; i < numAppointments; i++){
+	outfile << appointments[i].app_patient.name << endl;
+	outfile << appointments[i].app_patient.id << endl;
+	outfile << appointments[i].app_date.day << " /";
+	outfile << appointments[i].app_date.month << "/";
+	outfile << appointments[i].app_date.year<< endl;
+	outfile << appointments[i].time << endl;
+	outfile.close();
+	cout << "File saved successfully\n";
+}
+}
+else {
+	cout << "File not saved.\n";
+}
+
+ofstream updatefile("appoint.txt");
+        if (updatefile.is_open()) {
+            for (int i = 0; i < numAppointments; i++) {
+                updatefile << appointments[i].app_patient.name << endl;
+                updatefile << appointments[i].app_patient.id << endl;
+                updatefile << appointments[i].app_date.day << " /";
+                updatefile << appointments[i].app_date.month << "/";
+                updatefile << appointments[i].app_date.year << endl;
+                updatefile << appointments[i].time << endl;
+            }
+            updatefile.close();
+           // cout << "File updated successfully" << endl;
+        } else {
+            cout << "File not updated." << endl;
+        }
+
+}
+	
+
+
+
+
+
