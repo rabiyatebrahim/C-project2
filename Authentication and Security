@@ -1,0 +1,47 @@
+//Here's an example C++ code that restricts access to authorized people by asking for a password:
+
+#include <iostream>
+#include <string>
+
+using namespace std;
+void encryption_and_decryption(){
+int i,choice;
+char str[10];
+cout <<"please enter a string\n";
+cin >>str;
+cout <<"\nplease choose 1 of the f.f option";
+cout <<"\n1= encrypt the string ";
+cout<<"\n2= decrypt the string"<<endl;
+cin>>choice;
+switch(choice ){
+case 1: //encryption code
+for(i=0; (i<10 && str[i]!='\0'); i++)
+ str[i]=str[i]+3;// to add 3 to ascii value of every character 
+cout <<"The encrypted string is:"<<str;
+break;
+case 2: //decryption code
+for(i=0; (i<10 && str[i]!='\0'); i++)
+ str[i]=str[i]-3;//  subtract 3 from ascii value of every character
+cout <<"The decrypted string is:"<<str;
+break;
+default:
+cout<<"invalid input";
+}  
+}
+int main() {
+    string password = "sensitive123data098!";
+    string input;
+
+    cout << "Enter password: ";
+    cin >> input;
+
+    if (input == password) {
+        cout << "Access granted." << endl;
+        // add your code to be executed after successful authentication
+    } else {
+        cout << "Access denied." << endl;
+        // add your code to handle failed authentication
+    }
+encryption_and_decryption();
+    return 0;
+}
