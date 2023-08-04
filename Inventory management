@@ -1,0 +1,219 @@
+#include <iostream>
+#include <vector>
+#include <fstream>
+#include <sstream>
+
+struct InventoryItem {
+    std::string name;
+    int quantity;
+    int reorder_level;
+    std::string supplier;
+    std::string purchase_history;
+};
+
+std::vector<InventoryItem> info;
+
+void Create() {
+    InventoryItem newItem;
+    std::cout << "Enter item name: ";
+    std::cin >> newItem.name;
+    std::cout << "Enter item quantity: ";
+    std::cin >> newItem.quantity;
+    std::cout << "Enter reorder level: ";
+    std::cin >> newItem.reorder_level;
+    std::cout << "Enter supplier: ";
+    std::cin >> newItem.supplier;
+    std::cout << "Enter purchase history: ";
+    std::cin >> newItem.purchase_history;
+
+    info.push_back(newItem);
+}
+int i=0;
+
+
+void View() {
+    if (info.empty()) {
+        std::cout << "Inventory is empty." << std::endl;
+    } else {
+        std::cout << std::endl<<"Current Inventory:" << std::endl<<std::endl;
+        for (std::vector<InventoryItem>::const_iterator it = info.begin(); it != info.end(); ++it , ++i ) {
+    const InventoryItem& item = *it;
+            std::cout << i << ".NAME: " << item.name <<std::endl<<" QUANTITY: " << item.quantity
+                      <<std::endl<< " REORDER LEVEL: " << item.reorder_level
+                      <<std::endl<< " SUPPLIER: " << item.supplier <<std::endl<< " PURCHASE HISTORY: " << item.purchase_history << std::endl<<std::endl;
+        }
+    }
+}
+
+void Update() {
+    if (info.empty()) {
+        std::cout << "Inventory is empty." << std::endl;
+    } else {
+        int itemNo;
+        std::cout << "Enter the item number to update (0-" << info.size() - 1 << "): ";
+        std::cin >> itemNo;
+        if (itemNo >= 0 && itemNo < info.size()) {
+            InventoryItem& itemToUpdate = info[itemNo];
+            std::cout << "Enter updated item quantity: ";
+            std::cin >> itemToUpdate.quantity;
+            std::cout << "Enter updated reorder level: ";
+            std::cin >> itemToUpdate.reorder_level;
+            std::cout << "Enter updated supplier: ";
+            std::cin >> itemToUpdate.supplier;
+            std::cout << "Enter updated purchase history: ";
+            std::cin >> itemToUpdate.purchase_history;
+            std::cout << "Item information updated successfully." << std::endl;
+        } else {
+            std::cout << "Invalid item number." << std::endl;
+        }
+    }
+}
+
+void Delete() {
+    if (info.empty()) {
+        std::cout << "Inventory is empty." << std::endl;
+    } else {
+        int itemNo;
+        std::cout << "Enter the item number to delete (0-" << info.size() - 1 << "): ";
+        std::cin >> itemNo;
+        if (itemNo >= 0 && itemNo < info.size()) {
+            info.erase(info.begin() + itemNo);
+            std::cout << "Item deleted successfully." << std::endl;
+        } else {
+            std::cout << "Invalid item number." << std::endl;
+        }
+    }
+}
+
+void FindItemByName(const std::string& itemName) {
+    for (std::vector<InventoryItem>::const_iterator it = info.begin(); it != info.end(); ++it , ++i) {
+    const InventoryItem& item = *it;
+        if (item.name == itemName) {
+            std::cout <<std::endl<< "Item Found:" << std::endl;
+            std::cout << i << ".NAME: " << item.name <<std::endl<<" QUANTITY: " << item.quantity
+                      <<std::endl<< " REORDER LEVEL: " << item.reorder_level
+                      <<std::endl<< " SUPPLIER: " << item.supplier <<std::endl<< " PURCHASE HISTORY: " << item.purchase_history << std::endl<<std::endl;
+            return;
+        }
+    }
+    std::cout << "Item not found in the inventory." << std::endl;
+}
+void InventoryLevelTracker() {
+    std::cout << "Alert: Items below reorder level:" << std::endl;
+    for (std::vector<InventoryItem>::const_iterator it = info.begin(); it != info.end(); ++it ) {
+    const InventoryItem& item = *it;
+        if (item.quantity < item.reorder_level) {
+            std::cout <<std::endl
+            <<"Item Name: " << item.name << ",   Current Quantity: " << item.quantity
+                      << ",   Reorder Level: " << item.reorder_level << std::endl;
+        }
+    }
+}
+
+void saveInventoryToFile() {
+    std::ofstream outFile("inventory_data1.txt");
+    if (outFile.is_open()) {
+        for (std::vector<InventoryItem>::const_iterator it = info.begin(); it != info.end(); ++it) {
+    const InventoryItem& item = *it;
+            outFile << item.name << "," << item.quantity << "," << item.reorder_level << ","
+                    << item.supplier << "," << item.purchase_history << std::endl;
+        }
+        outFile.close();
+    }
+}
+
+void loadInventoryFromFile() {
+    std::ifstream inFile("inventory_data1.txt");
+    if (inFile.is_open()) {
+        info.clear();
+        InventoryItem item;
+        std::string line;
+        while (getline(inFile, line)) {
+            
+            std::istringstream iss(line);
+
+            
+            std::getline(iss, item.name, ',');
+
+            
+            std::string quantityStr;
+            std::getline(iss, quantityStr, ',');
+            std::istringstream(quantityStr) >> item.quantity;
+            std::string reorderLevelStr;
+            std::getline(iss, reorderLevelStr, ',');
+            std::istringstream(reorderLevelStr) >> item.reorder_level;
+            std::getline(iss, item.supplier, ',');
+            std::getline(iss, item.purchase_history);
+            
+            info.push_back(item);
+        }
+        inFile.close();
+    } else {
+        std::cout << "Error: Cannot open the inventory file for reading." << std::endl;
+    }
+}
+
+
+
+
+void Search() {
+    std::string searchItemName;
+    std::cout << "Enter the item name to search: ";
+    std::cin.ignore(); // Clear any lingering newline characters from previous input
+    std::getline(std::cin, searchItemName);
+    FindItemByName(searchItemName);
+}
+
+int main() {
+    loadInventoryFromFile();
+
+A: std::cout << std::endl << "Enter the number to choose from the options."<<std::endl<<"Enter 0 for other options." << std::endl;
+    std::cout << "1. CREATE INVENTORY ITEM" << std::endl << "2. VIEW INVENTORY" << std::endl << "3. UPDATE INVENTORY" << std::endl
+              << "4. DELETE INVENTORY ITEM" << std::endl << "5. SEARCH INVENTORY ITEM" <<std::endl<< "6. INVENTORY LEVEL TRACKER"<<std::endl<<std::endl;
+
+    int se;
+    std::cin >> se;
+    if (se == 1) {
+        Create();
+        
+        std::cout << std::endl;
+    } else if (se == 2) {
+        i=0;
+        View();
+        std::cout << std::endl;
+    } else if (se == 3) {
+        Update();
+        
+        std::cout << std::endl;
+    } else if (se == 4) {
+        Delete();
+        
+        std::cout << std::endl;
+    } else if (se == 5) {
+        i=0;
+        Search();
+        std::cout << std::endl;
+    } else if (se == 0) {
+        goto B;
+    } else if (se == 6) {
+        InventoryLevelTracker();
+        std::cout << std::endl;
+    } else {
+        std::cout << "Error, try again" << std::endl;
+        goto A;
+    }
+saveInventoryToFile();
+B: std::cout << std::endl << "1. CONTINUE" << std::endl << "2. EXIT" << std::endl<<std::endl;
+    int choice;
+    std::cin >> choice;
+    if (choice == 1) {
+        goto A;
+    } else if (choice == 2) {
+        goto C;
+    } else {
+        std::cout << "Error, try again." << std::endl;
+        goto B;
+    }
+
+C: return 0;
+}
