@@ -1,7 +1,7 @@
 
 #include<iostream>
 #include<string>
-
+#include<fstream>
 using namespace std;
 
 struct Patient {
@@ -24,8 +24,13 @@ void addPatient() {
         cout << "Maximum number of patients reached." << endl;
         return;
     }
+    int numPatients;
+    cout << "Enter the number of patients to add: ";
+    cin >> numPatients;
+    cin.ignore();
     
-    Patient newPatient;
+   for (int i = 0; i < numPatients; i++) {
+        Patient newPatient;
     cout << "Enter patient name: ";
     getline(cin, newPatient.name);
     cout << "Enter patient age: ";
@@ -50,37 +55,50 @@ void addPatient() {
     
     cout << "Enter patient prescriptions: ";
     getline(cin, newPatient.prescriptions);
-    
     patientList[patientCount] = newPatient;
-    patientCount++;
-    
-    cout << "Patient added successfully." << endl;
-}
-
-void showPatientRecords() {
-	if(patientCount==0){
-		cout<<"No patient records found."<<endl;
-		return;
-	}
-    for (int i = 0; i < patientCount; i++) {
-        cout << "Patient " << i+1 << ":" << endl;
-        cout << "Name: " << patientList[i].name << endl;
-        cout << "Age: " << patientList[i].age << endl;
-        cout << "Gender: " << patientList[i].gender << endl;
-        cout << "Disease: " << patientList[i].disease << endl;
-        cout << "ID: " << patientList[i].id << endl;
-        cout << "Contact Information: " << patientList[i].contact_information << endl;
-        cout << "Medical History: " << patientList[i].medical_history << endl;
-        cout << "Prescriptions: " << patientList[i].prescriptions << endl;
-        cout << endl;
+        patientCount++;
+   
+    ofstream outputFile("patient_records.txt", ios::app);
+        if (outputFile.is_open()) {
+            // Check if the file is empty
+            outputFile.seekp(0, ios::end);
+  if(outputFile.tellp() == 0){
+      outputFile << "Name\tAge\tGender\tDisease\tID\tContact Information\tMedical History\tPrescriptions" << endl;
     }
+     // Write patient information to the file
+            outputFile << newPatient.name << "\t" << newPatient.age << "\t" << newPatient.gender << "\t"
+                       << newPatient.disease << "\t" << newPatient.id << "\t" << newPatient.contact_information << "\t\t\t"
+                       << newPatient.medical_history << "\t\t\t" << newPatient.prescriptions << endl;
+
+            outputFile.close();
+            cout << "Patient added successfully." << endl;
+        } else {
+            cout << "Unable to open file for writing." << endl;
+        }
+    
+}
+}
+void showPatientRecords(){
+    string info;
+ifstream infile;
+infile.open("patient_records.txt");
+if(infile.is_open()){
+
+    while(getline(infile, info))
+       {
+cout<<info<<endl;}
+infile.close();
+}
+else{
+    cout<<"unable to  open file"<<endl;
+}
 }
 
 void searchPatient() {
-	if(patientCount==0){
-		cout<<"No patient records found."<<endl;
-		return;
-	}
+  if(patientCount==0){
+    cout<<"No patient records found."<<endl;
+    return;
+  }
     int searchId;
     cout << "Enter patient ID to search: ";
     cin >> searchId;
@@ -103,6 +121,7 @@ void searchPatient() {
     
     cout << "Patient not found." << endl;
 }
+
 
 void updatePatientInfo() {
     int searchId;
@@ -135,24 +154,21 @@ void updatePatientInfo() {
             
             cout << "Patient information updated successfully." << endl;
             return;
-        }
+      
+	    }
     }
     
     cout << "Patient not found." << endl;
 }
 
-void storePatientInformation() {
-    // Code to store patient information to a file or database can be added here
-    cout << "Patient information stored successfully." << endl;
-}
+
 void menu(){
-	    cout << "********PATIENT MANAGEMENT SYSTEM********" << endl;
+      cout << "********PATIENT MANAGEMENT SYSTEM********" << endl;
         cout << "1. Add Patient" << endl;
         cout << "2. Show Patient Records" << endl;
         cout << "3. Search Patient" << endl;
         cout << "4. Update Patient Info" << endl;
-        cout << "5. Store Patient Information" << endl;
-        cout << "6. Quit" << endl;
+        cout << "5. Quit"<< endl;
         cout << "     *****************************     "<<endl;
 }
 
@@ -179,9 +195,6 @@ int main() {
                 updatePatientInfo();
                 break;
             case 5:
-                storePatientInformation();
-                break;
-            case 6:
                 cout << "Exiting program..." << endl;
                 break;
             default:
@@ -190,6 +203,6 @@ int main() {
         }
         
         cout << endl;
-    } while(choice != 6);
+    } while(choice != 5);
     return 0;
 }
